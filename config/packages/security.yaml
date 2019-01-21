@@ -45,6 +45,20 @@ security:
                 failure_handler:          lexik_jwt_authentication.handler.authentication_failure
             provider: chain_provider
 
+        api_register:
+            pattern:  ^/api/auth/register
+            stateless: true
+            anonymous: true
+
+        api:
+            pattern: ^/api
+            stateless: true
+            anonymous: false
+            provider: chain_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
         main:
 #            anonymous: true
 
