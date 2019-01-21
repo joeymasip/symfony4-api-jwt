@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\User;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/auth")
@@ -27,6 +29,21 @@ class ApiAuthController extends AbstractController
             $request->getContent(),
             true
         );
+
+        $validator = Validation::createValidator();
+
+        $constraint = new Assert\Collection(array(
+            // the keys correspond to the keys in the input array
+            'username' => new Assert\Length(array('min' => 1)),
+            'password' => new Assert\Length(array('min' => 1)),
+            'email' => new Assert\Email(),
+        ));
+
+        $violations = $validator->validate($data, $constraint);
+
+        if ($violations->count() > 0) {
+            return new JsonResponse(["error" => (string)$violations], 500);
+        }
 
         $username = $data['username'];
         $password = $data['password'];
