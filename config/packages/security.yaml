@@ -33,6 +33,18 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+        api_login:
+            pattern:  ^/api/auth/login
+            stateless: true
+            anonymous: true
+            json_login:
+                provider: chain_provider
+                check_path:               /api/auth/login
+                success_handler:          lexik_jwt_authentication.handler.authentication_success
+                failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+            provider: chain_provider
+
         main:
 #            anonymous: true
 
