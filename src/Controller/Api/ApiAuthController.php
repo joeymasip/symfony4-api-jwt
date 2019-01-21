@@ -45,16 +45,11 @@ class ApiAuthController extends AbstractController
             return new JsonResponse(["error" => (string)$violations], 500);
         }
 
-        $username = $data['username'];
-        $password = $data['password'];
-        $email = $data['email'];
-
         $user = new User();
-
         $user
-            ->setUsername($username)
-            ->setPlainPassword($password)
-            ->setEmail($email)
+            ->setUsername($data['username'])
+            ->setPlainPassword($data['password'])
+            ->setEmail($data['email'])
             ->setEnabled(true)
             ->setRoles(['ROLE_USER'])
             ->setSuperAdmin(false)
@@ -66,6 +61,10 @@ class ApiAuthController extends AbstractController
             return new JsonResponse(["error" => $e->getMessage()], 500);
         }
 
-        return new JsonResponse(["success" => $user->getUsername(). " has been registered!"], 200);
+        # Code 307 preserves the request method, while redirectToRoute() is a shortcut method.
+        return $this->redirectToRoute('api_auth_login', [
+            'username' => $data['username'],
+            'password' => $data['password']
+        ], 307);
     }
 }

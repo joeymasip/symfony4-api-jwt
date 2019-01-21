@@ -29,6 +29,10 @@ security:
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/, role: ROLE_ADMIN }
 
+        - { path: ^/api/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/auth/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
