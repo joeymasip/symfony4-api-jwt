@@ -1,13 +1,40 @@
 security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+        Symfony\Component\Security\Core\User\User: plaintext
+
+    role_hierarchy:
+        ROLE_ADMIN:         ROLE_USER
+        ROLE_SUPER_ADMIN:   ROLE_ADMIN
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        chain_provider:
+            chain:
+                providers: [in_memory, fos_userbundle]
+        in_memory:
+            memory:
+                users:
+                    superadmin:
+                        password: 'superadminpw'
+                        roles: ['ROLE_SUPER_ADMIN']
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
+#            anonymous: true
 
             # activate different ways to authenticate
 
@@ -16,9 +43,17 @@ security:
 
             # form_login: true
             # https://symfony.com/doc/current/security/form_login_setup.html
+            pattern: ^/
+            form_login:
+                provider: chain_provider
+                csrf_token_generator: security.csrf.token_manager
+                login_path: fos_user_security_login
+                check_path: fos_user_security_check
+                always_use_default_target_path: false
+                default_target_path: admin_admin_index
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-    access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+            logout:
+                path:   fos_user_security_logout
+                target: fos_user_security_login
+#            logout:       true
+            anonymous:    true
